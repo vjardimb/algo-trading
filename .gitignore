@@ -1,0 +1,4 @@
+venv/
+.idea/
+notebooks/.ipynb_checkpoints/
+helpers/__pycache__

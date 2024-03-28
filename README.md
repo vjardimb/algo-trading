@@ -1,6 +1,7 @@
 # algo-trading
 Repo dedicate for the development of algorithmic trading strategies and proper backtest on real stock price data.
 
+The goal is to also test machine learning techniques, such as reinforcement learning, on trading tasks.
 
 ## Getting started
 
@@ -27,4 +28,11 @@ git clone https://github.com/vjardimb/algo-trading.git
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements. txt
+```
+
+5. To test if things are working, you can try running the sma_cross module, which backtests the SmaCross strategy on 
+OHLC daily data for Google Inc.
+
+```bash
+python strategies\sma_cross.py
 ```
