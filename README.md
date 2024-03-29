@@ -27,7 +27,7 @@ git clone https://github.com/vjardimb/algo-trading.git
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements. txt
+pip install -r requirements.txt
 ```
 
 5. To test if things are working, you can try running the sma_cross module, which backtests the SmaCross strategy on 

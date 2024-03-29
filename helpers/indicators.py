@@ -7,3 +7,4 @@ def SMA(values, n):
     each step taking into account `n` previous values.
     """
     return pd.Series(values).rolling(n).mean()
+
