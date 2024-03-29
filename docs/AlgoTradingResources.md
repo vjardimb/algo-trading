@@ -15,25 +15,20 @@ Below is a list of GitHub repositories that provide code, libraries, and tools f
 - **backtesting.py** - A Python library for backtesting trading strategies.  
   [https://github.com/kernc/backtesting.py](https://github.com/kernc/backtesting.py)
 
-- **QuantConnect/Lean** - An open-source algorithmic trading engine built for easy strategy research, backtesting, and live trading.  
-  [https://github.com/QuantConnect/Lean](https://github.com/QuantConnect/Lean)
+- **backtesting.py user guide** - An elucidating guide on how to use the backtesting libray
+  [https://kernc.github.io/backtesting.py/doc/examples/Quick%20Start%20User%20Guide.html](https://kernc.github.io/backtesting.py/doc/examples/Quick%20Start%20User%20Guide.html)
 
-- **ccxt/ccxt** - A JavaScript / Python / PHP cryptocurrency trading library with support for more than 100 bitcoin/altcoin exchanges.  
-  [https://github.com/ccxt/ccxt](https://github.com/ccxt/ccxt)
+- **Notebook for RL trading** - Python notebook containing implementations of different RL algorithms as trading agents.
+  [https://colab.research.google.com/drive/1FzLCI0AO3c7A4bp9Fi01UwXeoc7BN8sW#scrollTo=BBq6lbZLmlxa](https://colab.research.google.com/drive/1FzLCI0AO3c7A4bp9Fi01UwXeoc7BN8sW#scrollTo=BBq6lbZLmlxa)
 
-_...add more repositories as needed..._
+- **ML-based trading** - Github community listing different approaches to ML trading.
+  [https://github.com/firmai/financial-machine-learning?tab=readme-ov-file](https://github.com/firmai/financial-machine-learning?tab=readme-ov-file)
 
 ## Articles
 
 Here are some insightful articles on various topics related to algorithmic trading, ranging from introductory guides to advanced strategy development.
 
 - **Introduction to Algorithmic Trading Strategies** - This article covers the basics of developing and testing algorithmic trading strategies.  
-  [Link to article](#)
-
-- **Optimizing Trading Strategies with Machine Learning** - An in-depth look at how machine learning can be applied to improve trading strategies.  
-  [Link to article](#)
-
-_...add more articles as needed..._
 
 ## Useful Webpages and Links
 
