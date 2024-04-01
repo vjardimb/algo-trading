@@ -8,21 +8,17 @@ This document aggregates various resources such as GitHub repositories, articles
 - [Articles](#articles)
 - [Useful Webpages and Links](#useful-webpages-and-links)
 
-## GitHub Repositories
+## GitHub Repositories / Python Notebooks
 
 Below is a list of GitHub repositories that provide code, libraries, and tools for algorithmic trading strategies, data analysis, and backtesting frameworks.
 
-- **backtesting.py** - A Python library for backtesting trading strategies.  
-  [https://github.com/kernc/backtesting.py](https://github.com/kernc/backtesting.py)
+- **[backtesting.py](https://github.com/kernc/backtesting.py)** - A Python library for backtesting trading strategies.
 
-- **backtesting.py user guide** - An elucidating guide on how to use the backtesting libray
-  [https://kernc.github.io/backtesting.py/doc/examples/Quick%20Start%20User%20Guide.html](https://kernc.github.io/backtesting.py/doc/examples/Quick%20Start%20User%20Guide.html)
+- **[backtesting.py user guide](https://kernc.github.io/backtesting.py/doc/examples/Quick%20Start%20User%20Guide.html)** - An elucidating guide on how to use the backtesting libray
 
-- **Notebook for RL trading** - Python notebook containing implementations of different RL algorithms as trading agents.
-  [https://colab.research.google.com/drive/1FzLCI0AO3c7A4bp9Fi01UwXeoc7BN8sW#scrollTo=BBq6lbZLmlxa](https://colab.research.google.com/drive/1FzLCI0AO3c7A4bp9Fi01UwXeoc7BN8sW#scrollTo=BBq6lbZLmlxa)
+- **[Notebook for RL trading](https://colab.research.google.com/drive/1FzLCI0AO3c7A4bp9Fi01UwXeoc7BN8sW#scrollTo=BBq6lbZLmlxa)** - Python notebook containing implementations of different RL algorithms as trading agents.
 
-- **ML-based trading** - Github community listing different approaches to ML trading.
-  [https://github.com/firmai/financial-machine-learning?tab=readme-ov-file](https://github.com/firmai/financial-machine-learning?tab=readme-ov-file)
+- **[ML-based trading](https://github.com/firmai/financial-machine-learning?tab=readme-ov-file)** - Github community listing different approaches to ML trading.
 
 ## Articles
 

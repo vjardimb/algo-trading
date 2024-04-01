@@ -1,7 +1,7 @@
 from backtesting import Strategy
 from backtesting.lib import crossover
 import pandas as pd
-from helpers.indicators import SMA
+from helpers.indicators import sma
 
 
 class SmaCross(Strategy):
@@ -12,8 +12,8 @@ class SmaCross(Strategy):
 
 	def init(self):
 		# Precompute the two moving averages
-		self.sma1 = self.I(SMA, self.data.Close, self.n1)
-		self.sma2 = self.I(SMA, self.data.Close, self.n2)
+		self.sma1 = self.I(sma, self.data.Close, self.n1)
+		self.sma2 = self.I(sma, self.data.Close, self.n2)
 
 	def next(self):
 		# If sma1 crosses above sma2, close any existing

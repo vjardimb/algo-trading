@@ -1,6 +1,6 @@
-from backtesting import Backtest, Strategy
+from backtesting import Strategy
 from backtesting.lib import crossover
-import pandas_ta as ta
+from helpers.indicators import rsi
 
 
 class RsiOscillator(Strategy):
@@ -9,7 +9,7 @@ class RsiOscillator(Strategy):
 	lower_bound = 30
 
 	def init(self):
-		self.rsi = self.I(ta.rsi, self.data.Close, self.rsi_len)
+		self.rsi = self.I(rsi, self.data.Close, self.rsi_len)
 
 	def next(self):
 		if crossover(self.rsi, self.upper_bound):
