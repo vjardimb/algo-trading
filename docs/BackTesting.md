@@ -67,7 +67,8 @@ def next(self):
 are properly updated and aligned with the data.
 
 - Accessing Data: Use self.data to access current and historical data. For example, self.data.Close[-1] refers to the 
-latest close price. The data object provides access to open, high, low, close prices (OHLC), and volume.
+latest close price. Always consider that the historical data provided to the strategy only contains only open, high, 
+low, close prices (OHLC), and volume, all the rest needs to be computed inside the strategy class.
 
 - Order Management: The methods self.buy() and self.sell() place buy and sell orders, respectively. You can specify the 
 amount, price, and other order parameters. By default, orders are executed at the next available price.

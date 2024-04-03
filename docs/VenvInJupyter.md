@@ -1,15 +1,15 @@
 # Using a Virtual Environment in a Jupyter Notebook
 
-Although jupyter can directly identify your venv when changing the jupyter kernel, prior steps are still needed in order
+Although jupyter can directly identify your venv when changing the Jupyter kernel, prior steps are still needed in order
 to properly use the python packages installed in it.
 
-As shown in the requeriments.txt file, the ipykernel needs to be included in your venv. If you don't have, do:
+As shown in the requeriments.txt file, the ipykernel needs to be included in your venv. If it's not, do:
 
 ```bash
 pip install ipykernel==6.29.4
 ```
 
-Next you can add your virtual environment to Jupyter by typing:
+Next you need to add your virtual environment to Jupyter by typing:
 
 ```bash
 python -m ipykernel install --user --name=<venv-name>
