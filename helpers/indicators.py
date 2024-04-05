@@ -32,3 +32,24 @@ def rsi(close, length):
     rsi_values = ta.rsi(close=close, lenght=length)
 
     return rsi_values
+
+
+def ema(close):
+    # Convert to pandas series. Necessary for error avoidance.
+    close = pd.Series(close)
+
+    # relative strength index values calculated by the imported function.
+    ema_values = ta.ema(close=close)
+
+    return ema_values
+
+
+def bbands(close, length=20, std=2.0):
+    # Convert to pandas series. Necessary for error avoidance.
+    close = pd.Series(close)
+
+    # Lower, mid and upper, respectively, being calculated by the imported bbands function.
+    bband_values = ta.bbands(close=close, length=length, std=std)
+
+    return bband_values.iloc[:, :3]
+

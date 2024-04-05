@@ -42,7 +42,7 @@ class StrategyTester:
 				# check whether the provided strategy will require optimization or not, and save it
 				for param, values in strategy[1].items():
 					if type(values) is list:
-						if len(values):
+						if len(values) > 1:
 							self._optimize_strategies[prior_n_strategies + i] = True
 							break
 			else:
@@ -104,13 +104,13 @@ if __name__ == "__main__":
 	ticker_ = 'AAPL'  # Example: Apple Inc.
 
 	train_data_range_ = datetime.timedelta(days=500)
-	test_data_range_ = datetime.timedelta(days=500)
+	test_data_range_ = datetime.timedelta(days=1000)
 
-	train_end_date_ = datetime.datetime.today()    # End date for the data
-	train_start_date_ = train_end_date_ - train_data_range_  # Start date for the data
-
-	test_end_date_ = train_start_date_ - datetime.timedelta(days=1)   # End date for the data
+	test_end_date_ = datetime.datetime.today()    # End date for the data
 	test_start_date_ = test_end_date_ - test_data_range_  # Start date for the data
+
+	train_end_date_ = test_start_date_ - datetime.timedelta(days=1)   # End date for the data
+	train_start_date_ = train_end_date_ - train_data_range_  # Start date for the data
 
 	interval_ = '1d'  # ["1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1wk", "1mo", "3mo"]
 
@@ -145,14 +145,13 @@ if __name__ == "__main__":
 		),
 		(
 			SmaCross, {
-				'n1': 10,
-				'n2': 20,
+				'n1': [10],
+				'n2': 40,
 			}
 		)
 	]
 
 	# or
-
 	strategies_2 = [
 		RsiOscillator,
 		SmaCross
@@ -167,6 +166,7 @@ if __name__ == "__main__":
 		'Return (Ann.) [%]',
 		'Volatility (Ann.) [%]',
 		'Sharpe Ratio',
+		'# Trades',
 		'Win Rate [%]',
 		'Best Trade [%]',
 		'Worst Trade [%]',
