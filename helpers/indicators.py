@@ -29,7 +29,7 @@ def rsi(close, length):
     close = pd.Series(close)
 
     # relative strength index values calculated by the imported function.
-    rsi_values = ta.rsi(close=close, lenght=length)
+    rsi_values = ta.rsi(close=close, length=length)
 
     return rsi_values
 

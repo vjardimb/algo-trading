@@ -1,3 +1,17 @@
+#! C:\Users\Asus\Desktop\prog\algo-trading\venv\Scripts\python.exe
+
+import sys
+import os
+
+# Construct the path to the root directory
+root_path = os.path.abspath(
+	os.path.join(os.path.dirname(__file__), '..', '..')
+)
+
+# Append the path to sys.path only if it is not already included
+if root_path not in sys.path:
+	sys.path.append(root_path)
+
 from backtesting import Strategy
 from backtesting import Backtest
 from backtesting.lib import crossover
@@ -19,7 +33,7 @@ class BBandRsi(Strategy):
 	trade_time_max = 10      # maximum duration of a trade [days]
 	rsi_upper_limit = 50     # RSI upper limit for keeping a long [%]
 	rsi_lower_limit = 50     # RSI lower limit for keeping a short (preferably 100 - rsi_upper_limit) [%]
-	order_size = 0.99        # Fraction of cash to use on new order [%]
+	order_size = 99        # Fraction of cash to use on new order [%]
 	stoploss_factor = 50     # Fraction of the order limit to set the stop loss [%]
 	buy_limit_offset = 0     # Distance btw the candle close and the buy order limit [% of close]
 	sell_limit_offset = 0    # Distance btw the candle close and the sell order limit [% of close]
@@ -31,22 +45,28 @@ class BBandRsi(Strategy):
 		self.sma = self.I(sma, self.data.Close, self.sma_length)
 		self.rsi = self.I(rsi, self.data.Close, self.rsi_length)
 		self.bbands = self.I(bbands, self.data.Close, self.bbands_length, self.bbands_std)
+		self.consecutive_days_above_sma = 0  # Counter for days low is above SMA
+		self.consecutive_days_below_sma = 0  # Counter for days high is below SMA
 
 	def next(self):
 		lower_band = self.bbands[0]
 		upper_band = self.bbands[2]
 
-		# buying conditions
-		buy_sma_cross = crossover(self.data.High, self.sma)
-		buy_bband_cross = crossover(lower_band, self.data.Close)
+		# Update the counter for days low is above the SMA
+		if self.data.Low[-1] > self.sma:
+			self.consecutive_days_above_sma += 1
+		else:
+			self.consecutive_days_above_sma = 0
 
-		buy_signal = buy_sma_cross and buy_bband_cross
+		# Update the counter for days high is below the SMA
+		if self.data.High[-1] < self.sma:
+			self.consecutive_days_below_sma += 1
+		else:
+			self.consecutive_days_below_sma = 0
 
-		# selling conditions
-		sell_sma_cross = crossover(self.data.High, self.sma)
-		sell_bband_cross = crossover(self.data.Close, upper_band)
-
-		sell_signal = sell_sma_cross and sell_bband_cross
+		# Define buying and selling conditions
+		buy_signal = self.consecutive_days_above_sma >= 6 and lower_band > self.data.Close[-1]
+		sell_signal = self.consecutive_days_below_sma >= 6 and self.data.Close[-1] > upper_band
 
 		# if an order surpasses max days active, cancel it.
 		for _ in range(0, len(self.orders)):
@@ -72,8 +92,9 @@ class BBandRsi(Strategy):
 
 			# if the high price is above the sma and the close price is below the lower bband, buy
 			if buy_signal:
-				buy_limit = self.data.Close * (1 - self.buy_limit_offset / 100)
+				buy_limit = self.data.Close[-1] * (1 - self.buy_limit_offset / 100)
 				stop_loss = buy_limit * (1 - self.stoploss_factor / 100)
+				order_size = self.order_size / 100
 
 				# Cancel all previous orders
 				for _ in range(0, len(self.orders)):
@@ -84,13 +105,14 @@ class BBandRsi(Strategy):
 				self.buy(
 					limit=buy_limit,
 					sl=stop_loss,
-					size=self.order_size
+					size=order_size
 				)
 				self.orders_datetime.append(self.data.index[-1])
 
 			elif sell_signal:
-				sell_limit = self.data.Close * (1 - self.buy_limit_offset / 100)
+				sell_limit = self.data.Close[-1] * (1 - self.buy_limit_offset / 100)
 				stop_loss = sell_limit * (1 + self.stoploss_factor / 100)
+				order_size = self.order_size / 100
 
 				# Cancel previous orders
 				for _ in range(0, len(self.orders)):
@@ -101,14 +123,38 @@ class BBandRsi(Strategy):
 				self.sell(
 					limit=sell_limit,
 					sl=stop_loss,
-					size=self.order_size
+					size=order_size
 				)
 				self.orders_datetime.append(self.data.index[-1])
 
 
 if __name__ == '__main__':
+	from helpers.functions import get_ohlc_data
+	import warnings
+
+	warnings.filterwarnings('ignore')
+	warnings.simplefilter(action='ignore', category=FutureWarning)
+
+	# Define the ticker symbol and the time period you're interested in
+	# ticker_ = "^RUI"
+	# ticker_ = "AAPL"  # Example: Apple Inc.
+	ticker_ = "GOOG"  # Example: Apple Inc.
+	# ticker_ = "^BVSP"  # Example: Apple Inc.
+
+	end_date_ = '2021-01-05'  # End date for the data
+	start_date_ = '2011-01-05'  # Start date for the data
+
+	interval_ = '1d'  # ["1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1wk", "1mo", "3mo"]
+
+	ohlc_data = get_ohlc_data(
+		ticker_,
+		start_date_,
+		end_date_,
+		interval_
+	)
+
 	# Setup and run the backtest
-	bt = Backtest(GOOG, BBandRsi, cash=10_000, commission=.002)
+	bt = Backtest(ohlc_data, BBandRsi, cash=10_000, margin=1, commission=.00)
 
 	# Execute the backtest
 	results = bt.run()
