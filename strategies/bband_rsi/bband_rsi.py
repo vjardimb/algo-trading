@@ -31,10 +31,10 @@ class BBandRsi(Strategy):
 	# strategy parameters
 	order_time_max = 5       # maximum duration of an active order [days]
 	trade_time_max = 10      # maximum duration of a trade [days]
-	rsi_upper_limit = 50     # RSI upper limit for keeping a long [%]
-	rsi_lower_limit = 50     # RSI lower limit for keeping a short (preferably 100 - rsi_upper_limit) [%]
-	order_size = 99        # Fraction of cash to use on new order [%]
-	stoploss_factor = 50     # Fraction of the order limit to set the stop loss [%]
+	rsi_upper_limit = 70     # RSI upper limit for keeping a long [%]
+	rsi_lower_limit = 30     # RSI lower limit for keeping a short (preferably 100 - rsi_upper_limit) [%]
+	order_size = 99          # Fraction of cash to use on new order [%]
+	stoploss_factor = 5     # Fraction of the order limit to set the stop loss [%]
 	buy_limit_offset = 0     # Distance btw the candle close and the buy order limit [% of close]
 	sell_limit_offset = 0    # Distance btw the candle close and the sell order limit [% of close]
 
@@ -133,12 +133,11 @@ if __name__ == '__main__':
 	import warnings
 
 	warnings.filterwarnings('ignore')
-	warnings.simplefilter(action='ignore', category=FutureWarning)
 
 	# Define the ticker symbol and the time period you're interested in
-	# ticker_ = "^RUI"
+	ticker_ = "^RUI"
 	# ticker_ = "AAPL"  # Example: Apple Inc.
-	ticker_ = "GOOG"  # Example: Apple Inc.
+	# ticker_ = "GOOG"  # Example: Apple Inc.
 	# ticker_ = "^BVSP"  # Example: Apple Inc.
 
 	end_date_ = '2021-01-05'  # End date for the data
@@ -154,7 +153,7 @@ if __name__ == '__main__':
 	)
 
 	# Setup and run the backtest
-	bt = Backtest(ohlc_data, BBandRsi, cash=10_000, margin=1, commission=.00)
+	bt = Backtest(ohlc_data, BBandRsi, cash=10_000, margin=0.1, commission=.00)
 
 	# Execute the backtest
 	results = bt.run()
@@ -163,4 +162,4 @@ if __name__ == '__main__':
 	print(results)
 
 	# Optionally, plot the results
-	# bt.plot()
+	bt.plot()
