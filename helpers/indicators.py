@@ -53,3 +53,32 @@ def bbands(close, length=20, std=2.0):
 
     return bband_values.iloc[:, :3]
 
+
+def highest(price, length):
+    # Convert to pandas series. Necessary for error avoidance.
+    price = pd.Series(price)
+
+    return price.rolling(length).max()
+
+
+def lowest(price, length):
+    # Convert to pandas series. Necessary for error avoidance.
+    price = pd.Series(price)
+
+    return price.rolling(length).min()
+
+
+def atr(high, low, close, length):
+    high = pd.Series(high)
+    low = pd.Series(low)
+    close = pd.Series(close)
+
+    high_low = high - low
+    high_close = np.abs(high - close.shift())
+    low_close = np.abs(low - close.shift())
+    ranges = pd.concat([high_low, high_close, low_close], axis=1)
+    true_range = np.max(ranges, axis=1)
+
+    return true_range.rolling(length).mean()
+
+
