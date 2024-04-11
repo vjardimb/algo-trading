@@ -4,6 +4,16 @@ from helpers.indicators import sma
 
 
 class SmaCross(Strategy):
+	"""
+	Entry Criteria:
+	- Buy Signal: The short SMA goes above the long SMA
+	- Sell Signal: The short SMA goes below the long SMA
+	Exit Criteria:
+	- Entry criteria is no longer active, i.e. SMAs crossed.
+
+	Indicators Used:
+	- SMA (Simple Moving Average): Used twice, one short and one long, to determine the price trend.
+	"""
 	# Define the two MA lags as *class variables*
 	# for later optimization
 	n1 = 10

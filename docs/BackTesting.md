@@ -32,10 +32,19 @@ from indicators import SMA
 
 2. Define Your Strategy Class
 Your strategy class should inherit from Strategy. Within the class, you will define two main methods: init() and next().
-
+The class definition should also contain a short description of its entry and exit criteria.
 ```python
 class MyStrategy(Strategy):
-    # Your strategy definition goes here
+    """
+	Entry Criteria:
+	- Buy Signal: The short SMA goes above the long SMA
+	- Sell Signal: The short SMA goes below the long SMA
+	Exit Criteria:
+	- Entry criteria is no longer active, i.e. SMAs crossed.
+
+	Indicators Used:
+	- SMA (Simple Moving Average): Used twice, one short and one long, to determine the price trend.
+	"""
 ```
 
 3. Initialize Strategy Components in init()
