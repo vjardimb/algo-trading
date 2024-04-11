@@ -22,6 +22,22 @@ from helpers.indicators import sma, rsi, bbands
 
 
 class BBandRsi(Strategy):
+	"""
+	Entry Criteria:
+	- Buy Signal: Price closes below the lower Bollinger Band after at least 6 consecutive days where the daily low is
+	above the 200-day SMA.
+	- Sell Signal: Price closes above the upper Bollinger Band after at least 6 consecutive days where the daily high is
+	below the 200-day SMA.
+
+	Exit Criteria:
+	- A trade is exited if it exceeds 10 days in duration or if RSI crosses above 70 (for longs) or drops below
+	30 (for shorts), suggesting a potential reversal or overextended move.
+
+	Indicators Used:
+	- SMA (200-day) for trend direction.
+	- RSI (2-day) to identify overbought or oversold conditions.
+	- Bollinger Bands (20-day, 2.5 standard deviations) to determine volatility and trading bounds.
+	"""
 	# indicator parameters
 	rsi_length = 2           # candles
 	sma_length = 200         # candles
@@ -153,7 +169,7 @@ if __name__ == '__main__':
 	)
 
 	# Setup and run the backtest
-	bt = Backtest(ohlc_data, BBandRsi, cash=10_000, margin=0.1, commission=.00)
+	bt = Backtest(ohlc_data, BBandRsi, cash=10_000, margin=1, commission=.00)
 
 	# Execute the backtest
 	results = bt.run()
