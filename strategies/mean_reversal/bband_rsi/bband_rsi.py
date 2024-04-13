@@ -5,7 +5,7 @@ import os
 
 # Construct the path to the root directory
 root_path = os.path.abspath(
-	os.path.join(os.path.dirname(__file__), '..', '..')
+	os.path.join(os.path.dirname(__file__), '../..', '..')
 )
 
 # Append the path to sys.path only if it is not already included
