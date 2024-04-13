@@ -1,14 +1,27 @@
 from backtesting import Backtest, Strategy
-from backtesting.lib import crossover
-from backtesting.test import SMA, GOOG  # Usando dados de exemplo do Google
 
 from helpers.indicators import ema
 
 
 class NineOne(Strategy):
+	"""
+	Entry Criteria:
+	- Buy Signal: The 9-period exponential moving average (EMA) turns upward, confirmed by a candle closing above
+	the previous high. The entry is executed at a tick above the high of this candle.
+
+	Exit Criteria:
+	- The 9-period EMA turns downward after an entry has been made. When this downward turn is confirmed, the exit is
+	set at a tick below the low of the candle that caused the EMA to turn down. The trade is exited if the price crosses
+	below this exit price.
+
+	Indicators Used:
+	- EMA (Exponential Moving Average): A 9-period EMA is used to gauge the short-term trend direction and trigger entry
+	and exit points based on its turning points.
+	"""
+	ema_length = 9
+
 	def init(self):
-		# Inicializa a média móvel de 9 períodos
-		self.sma9 = self.I(ema, self.data.Close, 9)
+		self.ema = self.I(ema, self.data.Close, self.ema_length)
 		self.entry_price = None
 		self.exit_price = None
 		self.low_since_entry = None
@@ -18,43 +31,40 @@ class NineOne(Strategy):
 		high = self.data.High[-1]
 		low = self.data.Low[-1]
 
-		# Condição para entrar na operação
+		# Condition to enter a trade
 		if not self.position:
-			# Se a média móvel passou a subir, ativa sinal de compra
-			if (self.sma9[-1] > self.sma9[-2]) and (self.sma9[-2] < self.sma9[-3]):
-				self.entry_price = high + 0.01  # Preço de compra um tick acima da máxima atual
-				self.low_since_entry = low  # Atualiza a menor baixa desde a entrada
-			# Se a media caiu, desativa
-			elif self.sma9[-2] > self.sma9[-1]:
-				self.entry_price = None  # Reset na condição de entrada
+			# If the moving average has started to rise, activate the buy signal
+			if (self.ema[-1] > self.ema[-2]) and (self.ema[-2] < self.ema[-3]):
+				self.entry_price = high + 0.01  # Buy with a stop loss at the lowest low since entry
+				self.low_since_entry = low  # Reset the entry price after buying
+			# If the moving average has fallen, deactivate
+			elif self.ema[-2] > self.ema[-1]:
+				self.entry_price = None  # Reset the entry condition
 		else:
-			# Atualiza a menor baixa desde a entrada enquanto está em posição
+			# Update the lowest low since entry while in position
 			if low < self.low_since_entry:
 				self.low_since_entry = low
 
-		# Executar a entrada
-		# print(self.entry_price, price)
+		# Execute the entry
 		if self.entry_price and price > self.entry_price:
 			if not self.position:
-				self.buy(sl=self.low_since_entry)  # Compra com stop loss na menor baixa desde a entrada
-			self.entry_price = None  # Reset no preço de entrada após comprar
+				self.buy(sl=self.low_since_entry)  # Buy with a stop loss at the lowest low since entry
+			self.entry_price = None  # Reset the entry price after buying
 
-		# Condição para sair da operação
+		# Condition to exit the trade
 		if self.position:
-			# Se a média móvel passou a descer, ativa sinal de saida
-			if (self.sma9[-1] < self.sma9[-2]) and (self.sma9[-2] > self.sma9[-3]):
-				self.exit_price = low + 0.01  # Preço de compra um tick acima da máxima atual
-			# Se a media voltou a subir, desativa
-			elif self.sma9[-2] < self.sma9[-1]:
-				self.exit_price = None  # Reset na condição de entrada
+			# If the moving average has started to decline, activate the exit signal
+			if (self.ema[-1] < self.ema[-2]) and (self.ema[-2] > self.ema[-3]):
+				self.exit_price = low + 0.01  # Set the exit price one tick below the current low
+			# If the moving average has risen again, deactivate
+			elif self.ema[-2] < self.ema[-1]:
+				self.exit_price = None  # Reset the exit price
 
-
-		# Executar a saida
-		# print(self.entry_price, price)
+		# Execute the exit
 		if self.exit_price and price < self.exit_price:
 			if self.position:
-				self.position.close()  # Compra com stop loss na menor baixa desde a entrada
-			self.exit_price = None  # Reset no preço de entrada após comprar
+				self.position.close()  # Exit the current position
+			self.exit_price = None  # Reset the exit price after exiting
 
 
 if __name__ == '__main__':
@@ -65,7 +75,7 @@ if __name__ == '__main__':
 
 	# Define the ticker symbol and the time period you're interested in
 	# ticker_ = "^RUI"
-	ticker_ = "AAPL"  # Example: Apple Inc.
+	#ticker_ = "AAPL"  # Example: Apple Inc.
 	# ticker_ = "GOOG"  # Example: Apple Inc.
 	ticker_ = "^BVSP"  # Example: Apple Inc.
 
