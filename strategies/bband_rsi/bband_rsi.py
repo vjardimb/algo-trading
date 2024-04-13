@@ -151,9 +151,9 @@ if __name__ == '__main__':
 	warnings.filterwarnings('ignore')
 
 	# Define the ticker symbol and the time period you're interested in
-	ticker_ = "^RUI"
+	# ticker_ = "^RUI"
 	# ticker_ = "AAPL"  # Example: Apple Inc.
-	# ticker_ = "GOOG"  # Example: Apple Inc.
+	ticker_ = "GOOG"  # Example: Apple Inc.
 	# ticker_ = "^BVSP"  # Example: Apple Inc.
 
 	end_date_ = '2021-01-05'  # End date for the data
@@ -178,4 +178,4 @@ if __name__ == '__main__':
 	print(results)
 
 	# Optionally, plot the results
-	bt.plot()
+	# bt.plot()

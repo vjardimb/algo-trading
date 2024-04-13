@@ -34,12 +34,12 @@ def rsi(close, length):
     return rsi_values
 
 
-def ema(close):
+def ema(close, length):
     # Convert to pandas series. Necessary for error avoidance.
     close = pd.Series(close)
 
     # relative strength index values calculated by the imported function.
-    ema_values = ta.ema(close=close)
+    ema_values = ta.ema(close=close, length=length)
 
     return ema_values
 
