@@ -92,7 +92,7 @@ if __name__ == '__main__':
 	)
 
 	# Setup and run the backtest
-	bt = Backtest(ohlc_data, NineOne, cash=10_000_000, margin=1, commission=.00, trade_on_close=True)
+	bt = Backtest(ohlc_data, NineOne, cash=10_000_000, margin=1, commission=.00)
 
 	# Execute the backtest
 	results = bt.run()

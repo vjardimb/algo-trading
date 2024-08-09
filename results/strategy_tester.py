@@ -3,8 +3,9 @@ import datetime
 import pandas as pd
 from backtesting import Backtest
 
-from strategies.rsi_oscillator.rsi_oscillator import RsiOscillator
-from strategies.sma_cross.sma_cross import SmaCross
+from strategies.baseline.buy_and_hold.buy_and_hold import BuyAndHold
+from strategies.trend_following.max_min.max_min import MaxMin as MaxMin
+from strategies.trend_following.max_min.filtered_max_min import MaxMin as MaxMinFilt
 from helpers.functions import get_ohlc_data
 
 
@@ -102,24 +103,25 @@ class StrategyTester:
 if __name__ == "__main__":
 	# Define the ticker symbol and the time period you're interested in
 	ticker_ = 'AAPL'  # Example: Apple Inc.
+	ticker_ = 'ABEV3.SA'  # Example: Apple Inc.
 
-	train_data_range_ = datetime.timedelta(days=500)
-	test_data_range_ = datetime.timedelta(days=1000)
+	# train_data_range_ = datetime.timedelta(days=500)
+	test_data_range_ = datetime.timedelta(days=3000)
 
-	test_end_date_ = datetime.datetime.today()    # End date for the data
-	test_start_date_ = test_end_date_ - test_data_range_  # Start date for the data
+	test_end_date_ = '2022-02-15'  # Start date for the data
+	test_start_date_ = '2011-01-05'  # Start date for the data
 
-	train_end_date_ = test_start_date_ - datetime.timedelta(days=1)   # End date for the data
-	train_start_date_ = train_end_date_ - train_data_range_  # Start date for the data
+	# train_end_date_ = test_start_date_ - datetime.timedelta(days=1)   # End date for the data
+	# train_start_date_ = train_end_date_ - train_data_range_  # Start date for the data
 
 	interval_ = '1d'  # ["1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1wk", "1mo", "3mo"]
 
-	opt_data_info = {
-			'ticker': ticker_,
-			'start_date': train_start_date_,
-			'end_date': train_end_date_,
-			'interval': interval_,
-	}
+	# opt_data_info = {
+	# 		'ticker': ticker_,
+	# 		'start_date': train_start_date_,
+	# 		'end_date': train_end_date_,
+	# 		'interval': interval_,
+	# }
 
 	test_data_info = {
 		'ticker': ticker_,
@@ -129,32 +131,33 @@ if __name__ == "__main__":
 	}
 
 	opt_info = {
-		'data_info': opt_data_info,
-		'maximize': 'Sharpe Ratio'
+	# 	'data_info': opt_data_info,
+	# 	'maximize': 'Sharpe Ratio'
 	}
 
 	backtester = StrategyTester()
 
-	strategies_ = [
-		(
-			RsiOscillator, {
-				'rsi_len': [14, 20, 25],
-				'upper_bound': 70,
-				'lower_bound': 30,
-			}
-		),
-		(
-			SmaCross, {
-				'n1': [10],
-				'n2': 40,
-			}
-		)
-	]
+	# strategies_ = [
+	# 	(
+	# 		RsiOscillator, {
+	# 			'rsi_len': [14, 20, 25],
+	# 			'upper_bound': 70,
+	# 			'lower_bound': 30,
+	# 		}
+	# 	),
+	# 	(
+	# 		SmaCross, {
+	# 			'n1': [10],
+	# 			'n2': 40,
+	# 		}
+	# 	)
+	# ]
 
 	# or
-	strategies_2 = [
-		RsiOscillator,
-		SmaCross
+	strategies_ = [
+		# BuyAndHold,
+		MaxMin,
+		MaxMinFilt
 	]
 
 	comparison_metrics = [
@@ -178,7 +181,7 @@ if __name__ == "__main__":
 
 	backtester.add_strategies(strategies_)
 
-	backtester.optimize(optimization_info=opt_info)
+	# backtester.optimize(optimization_info=opt_info)
 
 	results = backtester.run_backtests(test_data_info, comparison_metrics)
 

@@ -1,7 +1,7 @@
 from backtesting import Backtest, Strategy
 from backtesting.test import SMA, GOOG
 
-from helpers.indicators import highest, lowest, atr, sma
+from helpers.indicators import highest, lowest, atr, sma, sma_std
 
 
 class MaxMin(Strategy):
@@ -25,16 +25,22 @@ class MaxMin(Strategy):
 
 	highest_length = 20
 	lowest_length = 10
+	sma_length = 80
+	roll_length = 160
 	atr_length = 20
+	lateral_mkt_threshold = 0.40
 
 	def init(self):
 		# Calculate the highest of the last X days and lowest of the last Y days
 		self.highest = self.I(highest, self.data.High, self.highest_length)
 		self.lowest = self.I(lowest, self.data.Low, self.lowest_length)
 		self.atr = self.I(atr, self.data.High, self.data.Low, self.data.Close, self.atr_length)
+		self.sma = self.I(sma, self.data.Close, self.sma_length)
+		self.sma_ltd = self.I(sma_std, self.data.Close, self.sma_length, self.roll_length)
 
 	def next(self):
-		if not self.position:
+
+		if not self.position and self.sma_ltd > self.lateral_mkt_threshold:
 			if self.data.High[-1] == self.highest[-1]:
 				# Calculate stop loss and take profit levels
 				stop_loss = max(self.data.Close[-1] - 2 * self.atr, self.lowest)
@@ -58,9 +64,9 @@ if __name__ == '__main__':
 	ticker_ = "AAPL"  # Example: Apple Inc.
 	# ticker_ = "GOOG"  # Example: Apple Inc.
 	# ticker_ = "^BVSP"  # Example: Apple Inc.
-	# ticker_ = "ABEV3.SA"  # Example: Apple Inc.
+	ticker_ = "ABEV3.SA"  # Example: Apple Inc.
 
-	end_date_ = '2022-02-15'  # Start date for the data
+	end_date_ = '2022-02-15'  # end date for the data
 	start_date_ = '2011-01-05'  # Start date for the data
 
 	interval_ = '1d'  # ["1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h", "1d", "5d", "1wk", "1mo", "3mo"]
@@ -82,4 +88,4 @@ if __name__ == '__main__':
 	print(results)
 
 	# Optionally, plot the results
-	bt.plot()
+	# bt.plot()

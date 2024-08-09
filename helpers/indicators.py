@@ -82,3 +82,14 @@ def atr(high, low, close, length):
     return true_range.rolling(length).mean()
 
 
+def sma_std(close, length, rolling_length):
+    # Convert to pandas series. Necessary for error avoidance.
+    close = pd.Series(close)
+
+    # simple moving average values calculated by the imported function.
+    sma_values = ta.sma(close=close, length=length)
+
+    sma_std = sma_values.rolling(rolling_length).std()
+
+    return sma_std
+

@@ -20,7 +20,18 @@ git clone https://github.com/vjardimb/algo-trading.git
 3. Create a virtual environment.
 
 ```bash
- python -m venv <venvname>
+python -m venv <venvname>
+```
+
+In case you already have a virtual environment, just activate it.
+
+On Windows, run:
+```bash
+<venvname>\Scripts\activate
+```
+On Unix or MacOS, run:
+```bash
+source <venvname>/bin/activate
 ```
 
 4. Upgrade pip and install the project dependencies.

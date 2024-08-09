@@ -20,6 +20,8 @@ Below is a list of GitHub repositories that provide code, libraries, and tools f
 
 - **[ML-based trading](https://github.com/firmai/financial-machine-learning?tab=readme-ov-file)** - Github community listing different approaches to ML trading.
 
+- **[List of resources](https://github.com/paperswithbacktest/awesome-systematic-trading/tree/main)** - List of 97 libraries and packages implementing trading bots, backtesters, indicators, pricers, etc. Each library is categorized by its programming language and ordered by descending populatrity (number of stars).
+
 ## Articles
 
 Here are some insightful articles on various topics related to algorithmic trading, ranging from introductory guides to advanced strategy development.
@@ -38,8 +40,6 @@ This section includes links to webpages, forums, and other online resources that
 
 - **TradingView** - A network where traders and investors share and discuss their ideas. Useful for chart analysis and strategy development.  
   [https://www.tradingview.com](https://www.tradingview.com)
-
-_...add more links as needed..._
 
 ---
 
