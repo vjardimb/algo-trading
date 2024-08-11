@@ -1,5 +1,6 @@
 # TODO List:
 
+- Refactor everything to Backtrader
 - Categorize strategies in subfolders
 - Try RL
 - Try Pair trading
