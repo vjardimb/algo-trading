@@ -14,10 +14,14 @@ class MaxMinStrategy(bt.Strategy):
 	def __init__(self):
 		# Define indicators
 		self.highest = bt.indicators.Highest(self.data.high, period=self.params.highest_length)
+		self.highest_minus_1 = bt.indicators.Highest(self.data.high, period=self.params.highest_length - 1)
 		self.lowest = bt.indicators.Lowest(self.data.low, period=self.params.lowest_length)
+		self.lowest_minus_1 = bt.indicators.Lowest(self.data.low, period=self.params.lowest_length - 1)
 
 		self.highest.plotinfo.subplot = False
+		self.highest_minus_1.plotinfo.plot = False
 		self.lowest.plotinfo.subplot = False
+		self.lowest_minus_1.plotinfo.plot = False
 
 		self.order = None  # To track the current order
 
@@ -75,10 +79,15 @@ class MaxMinStrategy(bt.Strategy):
 
 		if not self.position:  # Check if not in the market
 			# Enter long with a new stop order at the highest of the last 20 days
-			self.order = self.buy(size=order_size, exectype=bt.Order.Stop, price=self.highest[0])
+			# Since the order is always placed on the next bar, a different reasoning needs to be leveraged.
+			# If the next period has at least one price >= the highest of the last self.params.highest_length - 1 bars,
+			# one can already infer that this price will be the next bar's self.params.highest_length-periods highest.
+			# That's why the best thing to do is place the stop order price at the current [self.params.highest_length - 1]-periods highest.
+			self.order = self.buy(size=order_size, exectype=bt.Order.Stop, price=self.highest_minus_1[0])
 		else:
-			# Close the position with a stop order at the lowest of the last 10 days
-			self.order = self.close(exectype=bt.Order.Stop, price=self.lowest[0])
+			# Close the position with a stop order at the lowest of the last 10 days.
+			# Same self.params.highest_length - 1 periods is applied to the lowest
+			self.order = self.close(exectype=bt.Order.Stop, price=self.lowest_minus_1[0])
 
 	def stop(self):
 		self.log(f'(highest len {self.params.highest_length}, lowest length {self.params.lowest_length}) Ending Value {self.broker.getvalue()}', doprint=True)
@@ -124,10 +133,10 @@ if __name__ == '__main__':
 
 	# Add a strategy
 	# strats = cerebro.optstrategy(
-	#	MaxMinStrategy,
-	#	lowest_length=range(10, 90, 10),
-	#	highest_length=range(10, 90, 10)
-	#)
+	# 	MaxMinStrategy,
+	# 	lowest_length=range(10, 90, 10),
+	# 	highest_length=range(10, 90, 10)
+	# )
 
 	# Set the commission - 0.1% ... divide by 100 to remove the %
 	# cerebro.broker.setcommission(commission=0.001)
