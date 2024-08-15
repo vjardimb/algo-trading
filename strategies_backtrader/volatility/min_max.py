@@ -6,7 +6,7 @@ import sys
 class MaxMinStrategy(bt.Strategy):
 	params = (
 		('period', 4),
-		('max_loss', 0.1),
+		('max_loss', 0.05),
 		('printlog', False),
 	)
 
@@ -104,9 +104,21 @@ if __name__ == '__main__':
 	from datetime import datetime
 
 	DATA_CSV = "ABEV3.csv"
+	PRINT_RESULTS = True
+	PLOT = True
+	PARAM_PERIOD = 4
 
 	# Create a cerebro entity
 	cerebro = bt.Cerebro(stdstats=False)
+
+	# Add analyzers
+	cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="trades")
+	cerebro.addanalyzer(bt.analyzers.Transactions, _name="transactions")
+	cerebro.addanalyzer(bt.analyzers.SQN, _name="sqn")
+	cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe', riskfreerate=0.0)
+	cerebro.addanalyzer(bt.analyzers.DrawDown, _name='drawdown')
+	cerebro.addanalyzer(bt.analyzers.Returns, _name='returns')
+	cerebro.addanalyzer(bt.analyzers.TimeDrawDown, _name='timedrawdown')
 
 	# Datas are in a subfolder of the samples. Need to find where the script is
 	# because it could have been called from anywhere
@@ -117,7 +129,7 @@ if __name__ == '__main__':
 	data = bt.feeds.YahooFinanceCSVData(
 		dataname=datapath,
 		# Do not pass values before this date
-		fromdate=datetime(2014, 1, 1),
+		fromdate=datetime(2023, 1, 1),
 		# Do not pass values before this date
 		todate=datetime(2023, 12, 31),
 		# Do not pass values after this date
@@ -136,7 +148,7 @@ if __name__ == '__main__':
 	cerebro.addobserver(bt.observers.BuySell)
 
 	# Add the strategy
-	cerebro.addstrategy(MaxMinStrategy, period=7)
+	cerebro.addstrategy(MaxMinStrategy, period=PARAM_PERIOD)
 
 	# Add a strategy
 	# strats = cerebro.optstrategy(
@@ -147,5 +159,40 @@ if __name__ == '__main__':
 	# Run over everything
 	results = cerebro.run()
 
+	# Analyze results
+	first_strategy = results[0]
+	trade_metrics = first_strategy.analyzers.trades.get_analysis()
+
+	if PRINT_RESULTS:
+		print('Strategy Results:')
+		print('\nFinal Portfolio Value: %.2f' % cerebro.broker.getvalue())
+		print('SQN: %.2f' % first_strategy.analyzers.sqn.get_analysis()['sqn'])
+		print('Sharpe Ratio:', first_strategy.analyzers.sharpe.get_analysis()['sharperatio'])
+		print('Annual Return:', first_strategy.analyzers.returns.get_analysis()['rnorm100'])
+		print('Drawdown:', first_strategy.analyzers.drawdown.get_analysis()['max']['drawdown'])
+		print('Max Drawdown Duration:', first_strategy.analyzers.drawdown.get_analysis()['max']['len'])
+		# print('Time Drawdown:', first_strategy.analyzers.timedrawdown.get_analysis())
+		print('\nTrade Analysis:')
+		print('longest profit streak:', trade_metrics['streak']['won']['longest'])
+		print('longest loss streak:', trade_metrics['streak']['lost']['longest'])
+		print('avg pnl:', trade_metrics['pnl']['net']['average'])
+		print('\nn of closed trades:', trade_metrics['total']['closed'])
+		print('n of profit trades:', trade_metrics['won']['total'])
+		print('n of loss trades:', trade_metrics['lost']['total'])
+		print('% of profit trades:', trade_metrics['won']['total'] / trade_metrics['total']['closed'] if trade_metrics['total']['closed'] != 0 else 0)
+		print('\nn of longs:', trade_metrics['long']['total'])
+		print('n of profit longs:', trade_metrics['long']['won'])
+		print('n of loss longs:', trade_metrics['long']['lost'])
+		print('% of profit longs:', trade_metrics['long']['won'] / trade_metrics['long']['total'] if trade_metrics['long']['total'] != 0 else 0)
+		print('\nn of shorts:', trade_metrics['short']['total'])
+		print('n of profit shorts:', trade_metrics['short']['won'])
+		print('n of loss shorts:', trade_metrics['short']['lost'])
+		print('% of profit shorts:', trade_metrics['short']['won'] / trade_metrics['short']['total'] if trade_metrics['short']['total'] != 0 else 0)
+		print('\ntotal period positioned:', trade_metrics['len']['total'])
+		print('average trade duration:', trade_metrics['len']['average'])
+		print('max trade duration:', trade_metrics['len']['max'])
+		print('min trade duration:', trade_metrics['len']['min'])
+
 	# Plot the result
-	cerebro.plot(style='candlestick')
+	if PLOT:
+		cerebro.plot(style='candlestick')
