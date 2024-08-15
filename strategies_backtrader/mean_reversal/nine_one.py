@@ -3,7 +3,7 @@ import os
 import sys
 from datetime import date
 
-DEBUG_DATE = '2014-02-06'
+DEBUG_DATE = '2014-04-14'
 
 
 class NineOne(bt.Strategy):
@@ -39,6 +39,8 @@ class NineOne(bt.Strategy):
 
         order_size = self.get_size(self.datas[0].close[0])
 
+        self.stop_loss_active = False
+
         # Cancel the existing order if conditions are not favorable anymore
         if self.order and self.order.alive() and not self.order.status == self.order.Completed:
             if (self.order.isbuy() and self.ema[0] < self.ema[-1]) or \
@@ -46,16 +48,25 @@ class NineOne(bt.Strategy):
                 self.cancel(self.order)
                 self.log('Order canceled due to EMA direction change')
                 self.order = None
+                self.stop_loss_order = self.close(price=self.stop_loss_price, exectype=bt.Order.Stop)
+                self.stop_loss_active = True
                 return  # Prevent further execution until the next tick
 
-            elif len(self) - self.order_age >= self.params.max_order_duration:
+            elif len(self) - self.order_age > self.params.max_order_duration:
                 self.cancel(self.order)
                 self.log('Order canceled due to time expiration')
                 self.order = None
+                self.stop_loss_order = self.close(price=self.stop_loss_price, exectype=bt.Order.Stop)
+                self.stop_loss_active = True
                 return  # Prevent further execution until the next tick
 
+        # create stop loss order
         if self.position and not self.stop_loss_order:
-            self.stop_loss_order = self.close(price=low, exectype=bt.Order.Stop)
+            # self.stop_loss_order = self.close(price=self.stop_loss_price, exectype=bt.Order.Stop)
+            pass
+
+        if self.position and close < self.stop_loss_price and self.stop_loss_active:
+            self.close(price=self.stop_loss_price, exectype=bt.Order.Stop)
 
         # Condition to enter a trade
         if not self.position:
@@ -64,6 +75,7 @@ class NineOne(bt.Strategy):
                     self.log(f'Buy signal at {high}')
                     self.order = self.buy(size=order_size, price=high, exectype=bt.Order.Stop)
                     self.order_age = len(self)
+                    self.stop_loss_price = low
         else:
             # Condition to exit the trade
             if (close < self.ema[0]) and self.ema[0] < self.ema[-1]:
@@ -71,6 +83,10 @@ class NineOne(bt.Strategy):
                     self.log(f'Sell signal at {low}')
                     self.order = self.close(price=low, exectype=bt.Order.Stop)
                     self.order_age = len(self)
+
+                    self.cancel(self.stop_loss_order)
+                    self.stop_loss_order = None
+                    self.stop_loss_active = False
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -82,10 +98,14 @@ class NineOne(bt.Strategy):
             elif order.issell():
                 self.log(f'SELL EXECUTED, Price: {order.executed.price}, Cost: {order.executed.value}, Comm {order.executed.comm}')
 
+                self.cancel(self.stop_loss_order)
+                self.stop_loss_order = None
+
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             self.log('Order Canceled/Margin/Rejected')
 
-        self.order = None  # No pending orders
+        if order == self.order:
+            self.order = None  # No pending orders
 
 
 if __name__ == '__main__':
