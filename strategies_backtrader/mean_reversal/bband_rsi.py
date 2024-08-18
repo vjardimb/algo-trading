@@ -20,6 +20,7 @@ class BBandRsi(bt.Strategy):
 		('stoploss_factor', 0.05),
 		('buy_limit_offset', 0.0),
 		('sell_limit_offset', 0),
+		('do_logging', True),
 	)
 
 	def __init__(self):
@@ -32,11 +33,17 @@ class BBandRsi(bt.Strategy):
 		self.entry_date = None
 		self.order_creation = None
 
-	def log(self, txt, dt=None):
+	def log(self, txt, dt=None, skiplines=0, log=None):
 		""" Logging function for this strategy """
 		dt = dt or self.datas[0].datetime.date(0)
 
-		print(f'{dt.isoformat()} {txt}')
+		# if not log:
+		# 	log = self.params.do_logging
+
+		if log or self.params.do_logging:
+			print(skiplines*'\n' + f'{dt.isoformat()} {txt}')
+		else:
+			return
 
 	def get_size(self, price):
 		""" Calculate the number of shares to buy based on the current price and available cash. """
@@ -66,7 +73,7 @@ class BBandRsi(bt.Strategy):
 						price = self.data.low[0]*(1 - self.params.buy_limit_offset)
 
 						self.active_order = self.buy(size=order_size, price=price, exectype=bt.Order.Limit)
-						self.log(f'\n\nBuy signal at {price}')
+						self.log(f'BUY SIGNAL AT {price}', skiplines=1)
 
 						self.order_creation = len(self)
 			else:
@@ -83,14 +90,14 @@ class BBandRsi(bt.Strategy):
 		if order.status in [order.Completed]:
 			if order.isbuy():
 				self.log(
-					f'BUY EXECUTED, Price: {order.executed.price}, Cost: {order.executed.value}, Comm {order.executed.comm}')
+					f'BUY EXECUTED, Price: {round(order.executed.price, 2)}, Cost: {round(order.executed.value, 2)}, Comm {round(order.executed.comm, 2)}')
 
 				self.entry_date = len(self)
 				self.order_creation = None
 				self.active_order = None
 			elif order.issell():
 				self.log(
-					f'SELL EXECUTED, Price: {order.executed.price}, Cost: {order.executed.value}, Comm {order.executed.comm}')
+					f'SELL EXECUTED, Price: {round(order.executed.price, 2)}, Cost: {round(order.executed.value, 2)}, Comm {round(order.executed.comm, 2)}')
 				self.entry_date = None
 
 		elif order.status in [order.Canceled, order.Margin, order.Rejected]:
@@ -99,17 +106,25 @@ class BBandRsi(bt.Strategy):
 			if order.isbuy():
 				self.order_creation = None
 
+	def notify_trade(self, trade):
+		if not trade.isclosed:
+			return
+
+		self.log('OPERATION PROFIT, GROSS: %.2f, NET: %.2f' %
+				 (trade.pnl, trade.pnlcomm))
+
 	def stop(self):
 		if self.position:
 			self.close()
 
-		self.log(f'(bbands_stddev {self.params.bbands_stddev}, rsi_upper_limit {self.params.rsi_upper_limit}) Ending Value {self.broker.getvalue()}')
+		self.log(f'(bbands_stddev {self.params.bbands_stddev}, rsi_upper_limit {self.params.rsi_upper_limit}) Ending Value {round(self.broker.getvalue(), 2)}', skiplines=1, log=True)
 
 
 if __name__ == '__main__':
 	DATA_CSV = "BTC.csv"
-	PRINT_RESULTS = False
+	PRINT_RESULTS = True
 	PLOT = False
+	DO_LOGGING = True
 
 	# Create a cerebro entity
 	cerebro = bt.Cerebro(stdstats=False)
@@ -151,13 +166,14 @@ if __name__ == '__main__':
 	cerebro.addobserver(bt.observers.BuySell)
 
 	# Add the strategy
-	cerebro.addstrategy(BBandRsi)
+	cerebro.addstrategy(BBandRsi, do_logging=DO_LOGGING)
 
 	# Add a strategy
 	# strats = cerebro.optstrategy(
 	# 	BBandRsi,
 	# 	bbands_stddev=[1.5, 1.75, 2.0, 2.25, 2.50, 2.75],
 	# 	rsi_upper_limit=range(50, 81, 10),
+	# 	do_logging=False
 	# )
 
 	# Run over everything
@@ -184,20 +200,20 @@ if __name__ == '__main__':
 		print('n of profit trades:', trade_metrics['won']['total'])
 		print('n of loss trades:', trade_metrics['lost']['total'])
 		print('% of profit trades:',
-			  trade_metrics['won']['total'] / trade_metrics['total']['closed'] if trade_metrics['total'][
-																					  'closed'] != 0 else 0)
+			  round(100 * trade_metrics['won']['total'] / trade_metrics['total']['closed'], 2) if trade_metrics['total'][
+																					  'closed'] != 0 else 0, "%")
 		print('\nn of longs:', trade_metrics['long']['total'])
 		print('n of profit longs:', trade_metrics['long']['won'])
 		print('n of loss longs:', trade_metrics['long']['lost'])
 		print('% of profit longs:',
-			  trade_metrics['long']['won'] / trade_metrics['long']['total'] if trade_metrics['long'][
-																				   'total'] != 0 else 0)
+			  round(100 * trade_metrics['long']['won'] / trade_metrics['long']['total'], 2) if trade_metrics['long'][
+																				   'total'] != 0 else 0, "%")
 		print('\nn of shorts:', trade_metrics['short']['total'])
 		print('n of profit shorts:', trade_metrics['short']['won'])
 		print('n of loss shorts:', trade_metrics['short']['lost'])
 		print('% of profit shorts:',
-			  trade_metrics['short']['won'] / trade_metrics['short']['total'] if trade_metrics['short'][
-																					 'total'] != 0 else 0)
+			  round(100 * trade_metrics['short']['won'] / trade_metrics['short']['total'], 2) if trade_metrics['short'][
+																					 'total'] != 0 else 0, "%")
 		print('\ntotal period positioned:', trade_metrics['len']['total'])
 		print('average trade duration:', trade_metrics['len']['average'])
 		print('max trade duration:', trade_metrics['len']['max'])
